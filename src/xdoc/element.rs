@@ -243,7 +243,7 @@ impl Element {
 
     /// Set text for a text node
     pub fn set_text<S: AsRef<str>>(&mut self, text: S) -> Result<()> {
-        if !self.is_text() {
+        if !self.is_text() && self.nodes_len() > 0 {
             return Err(XDocErr {
                 message: "Not a text element!".to_string(),
                 file: "".to_string(),
@@ -251,7 +251,11 @@ impl Element {
                 source: None,
             });
         }
-        self.nodes[0] = Node::Text(text.as_ref().into());
+        if self.nodes_len() == 0 {
+            self.add_text(text);
+        } else {
+            self.nodes[0] = Node::Text(text.as_ref().into());
+        }
         Ok(())
     }
 
