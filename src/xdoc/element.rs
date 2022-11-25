@@ -93,6 +93,17 @@ impl Element {
         None
     }
 
+    /// Find the first occurrance specific child element (does not recurse to lower levels of children).
+    pub fn child_mut<S: AsRef<str>>(&mut self, name: S) -> Option<&mut Element> {
+        let name = name.as_ref();
+        for child in self.children_mut() {
+            if child.name.as_str() == name {
+                return Some(child);
+            }
+        }
+        None
+    }
+
     /// Add an element as a child of this element.
     pub fn add_child(&mut self, element: Element) {
         self.nodes.push(Node::Element(element))
@@ -228,6 +239,20 @@ impl Element {
     /// Append a text node to this element's nodes.
     pub fn add_text<S: AsRef<str>>(&mut self, text: S) {
         self.nodes.push(Node::Text(text.as_ref().into()))
+    }
+
+    /// Set text for a text node
+    pub fn set_text<S: AsRef<str>>(&mut self, text: S) -> Result<()> {
+        if !self.is_text() {
+            return Err(XDocErr {
+                message: "Not a text element!".to_string(),
+                file: "".to_string(),
+                line: 0,
+                source: None,
+            });
+        }
+        self.nodes[0] = Node::Text(text.as_ref().into());
+        Ok(())
     }
 
     /// Append a processing instruction to this element's nodes.
